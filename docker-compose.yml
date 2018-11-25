@@ -1,0 +1,60 @@
+version: '3.7'
+
+services:
+  mysql:
+    image: mariadb:10
+    network_mode: bridge
+    container_name: Ovh-db
+    restart: on-failure
+    environment:
+      MYSQL_ROOT_PASSWORD: abcde1234 # Password MYSQL Root
+    volumes:
+    - ./docker/volumes/mysql:/var/lib/mysql
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:4.8
+    network_mode: bridge
+    container_name: phpmyadmin
+    restart: on-failure
+    environment:
+          - PMA_ARBITRARY=1
+          - PMA_HOST=mysql
+    volumes:
+      - /sessions
+    ports:
+      - 8181:80
+    links:
+    - mysql
+  runtoday_wp:
+    image: wordpress
+    network_mode: bridge
+    container_name: runtoday-wp # Nombre del contenedor ( debe ser único )
+    restart: on-failure
+    volumes:
+    - ./runtoday/wp-content:/var/www/html/wp-content
+    environment:
+      WORDPRESS_DB_NAME: runtoday01
+      WORDPRESS_TABLE_PREFIX: wp_4f3a410455_
+      VIRTUAL_HOST: runtoday.docker
+    ports: 
+    - 8001:80
+    depends_on:
+    - mysql
+    links:
+    - mysql
+  runtoday_wp:
+    image: wordpress
+    network_mode: bridge
+    container_name: pedrojimenez-wp # Nombre del contenedor ( debe ser único )
+    restart: on-failure
+    volumes:
+    - ./pedrojimenez/wp-content:/var/www/html/wp-content
+    environment:
+      WORDPRESS_DB_NAME: pedrojimenez_wp
+      WORDPRESS_TABLE_PREFIX: wp_fe96ad6d8c_
+      VIRTUAL_HOST: pedrojimenez.docker
+    ports: 
+    - 8001:80
+    depends_on:
+    - mysql
+    links:
+    - mysql
